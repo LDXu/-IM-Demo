@@ -1,0 +1,10 @@
+PODS:
+  - EaseMobSDKFull (2.1.7)
+
+DEPENDENCIES:
+  - EaseMobSDKFull
+
+SPEC CHECKSUMS:
+  EaseMobSDKFull: 43858ca9a62bbe1fa4c7c006f944a3e52a4bff48
+
+COCOAPODS: 0.39.0
