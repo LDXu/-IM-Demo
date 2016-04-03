@@ -4,3 +4,4 @@
 
 pod 'EaseMobSDKFull'
 
+pod ‘SDWebImage’

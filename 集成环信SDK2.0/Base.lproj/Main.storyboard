@@ -391,6 +391,29 @@
                                             <outlet property="chatLabel" destination="FEg-dN-Z8w" id="tlj-wD-Wo5"/>
                                         </connections>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="TimeCell" selectionStyle="default" indentationWidth="10" reuseIdentifier="TimeCell" rowHeight="28" id="28b-25-JO4" customClass="YLQTimeCell">
+                                        <rect key="frame" x="0.0" y="220" width="320" height="28"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="28b-25-JO4" id="4cC-V8-4lm">
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="27.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0SV-hz-AXS">
+                                                    <rect key="frame" x="139" y="3" width="42" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="0SV-hz-AXS" firstAttribute="centerX" secondItem="4cC-V8-4lm" secondAttribute="centerX" id="W4b-sq-fWr"/>
+                                                <constraint firstItem="0SV-hz-AXS" firstAttribute="centerY" secondItem="4cC-V8-4lm" secondAttribute="centerY" id="xRw-hr-Zj8"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="timeLabel" destination="0SV-hz-AXS" id="Sbp-7z-tmS"/>
+                                        </connections>
+                                    </tableViewCell>
                                 </prototypes>
                                 <connections>
                                     <outlet property="dataSource" destination="fdM-2j-889" id="h5H-Hw-dII"/>

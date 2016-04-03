@@ -8,13 +8,26 @@
 
 #import "YLQChatPageCell.h"
 #import "YLQVoiceTool.h"
+#import <UIImageView+WebCache.h>
 
 @interface YLQChatPageCell()
-
+/** 显示聊天图片的控件*/
+@property (nonatomic, strong) UIImageView *imgView;
 
 @end
 
 @implementation YLQChatPageCell
+
+#pragma mark - lazyLoad
+
+-(UIImageView *)imgView{
+    if(!_imgView){
+        _imgView = [[UIImageView alloc] init];
+    }
+    
+    return _imgView;
+}
+
 
 - (void)awakeFromNib {
     // 添加Label的手势
@@ -45,6 +58,8 @@
 - (void)setMessage:(EMMessage *)message {
     _message = message;
     
+    // 移除图片控件
+    [self.imgView removeFromSuperview];
     //获取消息体 (类型不确定)
     id msgBody = message.messageBodies[0];
     //文本消息
@@ -54,8 +69,9 @@
     } else if ([msgBody isKindOfClass:[EMVoiceMessageBody class]]) {
         //语音消息
         [self showVoice:msgBody];
-        
-    } else {
+    }else if([msgBody isKindOfClass:[EMImageMessageBody class]]){//图片消息
+        [self showImage:msgBody];
+    }else{// 其它消息
         self.chatLabel.text = @"其他消息";
     }
 }
@@ -99,4 +115,31 @@
     
 
 }
+
+-(void)showImage:(EMImageMessageBody *)msgBody{
+    
+    // 设置Label的bounds
+    NSTextAttachment *attach = [[NSTextAttachment alloc] init];
+    attach.bounds = CGRectMake(0, 0, msgBody.size.width * 0.05, msgBody.size.height * 0.05);
+    NSAttributedString *attStr= [NSAttributedString attributedStringWithAttachment:attach];
+    self.chatLabel.attributedText = attStr;
+    
+    // 显示图片
+    
+    // 如果本地图片不存在，就从服务器下载显示
+    if (![[NSFileManager defaultManager] fileExistsAtPath:msgBody.thumbnailLocalPath]) {
+        NSURL *remoteURL = [NSURL URLWithString:msgBody.thumbnailRemotePath];
+        [self.imgView sd_setImageWithURL:remoteURL placeholderImage:[UIImage imageNamed:@"downloading"]];
+    }else{
+        self.imgView.image = [UIImage imageWithContentsOfFile:msgBody.thumbnailLocalPath];
+    }
+    
+    // 设置imgView的frm
+    self.imgView.frame = CGRectMake(0, 0, msgBody.size.width * 0.05, msgBody.size.height * 0.05);
+    
+    // 2.把UIImageView添加Label
+    [self.chatLabel addSubview:self.imgView];
+    
+}
+
 @end

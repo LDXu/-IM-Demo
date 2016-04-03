@@ -12,6 +12,8 @@
 #import "EaseMob.h"
 #import "EMCDDeviceManager.h"
 #import "YLQVoiceTool.h"
+#import "YLQTimeCell.h"
+#import "YLQTimeTool.h"
 
 //#import <EaseMob.h>
 
@@ -30,6 +32,9 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 //存放对方聊天内容
 @property (nonatomic, strong) NSMutableArray *dataArray;
+
+/** 上一个会话时间 */
+@property (nonatomic, copy) NSString *lastTimeStr;
 @end
 
 @implementation YLQChatPageViewController
@@ -76,6 +81,8 @@
     //获取键盘frame
     CGRect keyboardFrame = [center.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
     self.toolBarBottomConstraints.constant = keyboardFrame.size.height;
+    CGFloat offsetY = self.tableView.contentSize.height - self.tableView.frame.size.height + keyboardFrame.size.height + 44;
+    self.tableView.contentOffset = CGPointMake(0, offsetY);
 }
 
 - (void)keyboardWillHide:(NSNotification *)center{
@@ -91,8 +98,34 @@
 //    - (NSArray *)loadNumbersOfMessages:(NSUInteger)aCount before:(long long)timestamp;
     //但是现在简单的加载所有
     NSArray *allMessage = [conversation loadAllMessages];
-    [self.dataArray addObjectsFromArray:allMessage];
+    for (EMMessage *msg in allMessage) {
+        [self addMessageToDataSource:msg];
+        
+    }
 }
+
+// 把消息添加到数据源
+-(void)addMessageToDataSource:(EMMessage *)msg{
+    
+    // 1.添加时间到数据源
+    NSString *timeStr = [YLQTimeTool timeStr:msg.timestamp];
+    
+#warning 过滤，同一时间内，只显示一个时间
+    if (![self.lastTimeStr isEqualToString:timeStr]) {
+        [self.dataArray addObject:timeStr];
+        self.lastTimeStr = timeStr;
+    }
+    
+    // 2.添加消息模型到数据源
+    [self.dataArray addObject:msg];
+    
+}
+
+
+-(void)viewDidAppear:(BOOL)animated{
+    [self scrollToBottom];
+}
+
 
 #pragma mark - TableViewDelegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -100,8 +133,20 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    // 如果数据源是NSString类型，要显示TimeCell
+    id obj = self.dataArray[indexPath.row];
+    if ([obj isKindOfClass:[NSString class]]) {
+        static NSString *TimeCellID = @"TimeCell";
+        YLQTimeCell *timeCell = [tableView dequeueReusableCellWithIdentifier:TimeCellID];
+        // 显示时间
+        timeCell.timeLabel.text = obj;
+        
+        return timeCell;
+    }
+
     //聊天类型
-    EMMessage *message = self.dataArray[indexPath.row];
+    EMMessage *message = obj;
     //是否是接收方
     BOOL isReceiver = [message.from isEqualToString:self.buddy.username];
     YLQChatPageCell *cell = nil;
@@ -117,7 +162,11 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     //把接受到的内容给 用来计算cell高度的cell
-    self.chatCellTool.message = self.dataArray[indexPath.row];
+    id obj = self.dataArray[indexPath.row];
+    if ([obj isKindOfClass:[NSString class]]) {
+        return 24;
+    }
+    self.chatCellTool.message = obj;
     return [self.chatCellTool getCellHeight];
 }
 
@@ -137,7 +186,7 @@
         //取出回车换行字符
         NSString *text = [textView.text substringToIndex:textView.text.length - 1];
         // 1.把消息发送给服务器
-        [self sendMessage:text];
+         [self sendTextMessage:text];
         
         // 2.清空textView的文字
         textView.text = nil;
@@ -149,37 +198,14 @@
 
 }
 
-- (void)sendMessage:(NSString *)msg {
-    //创建消息体
-    //    EMTextMessageBody  文本消息体
-    //    EMVideoMessageBody 视频消息体
-    //    EMVoiceMessageBody 语音消息体
-    //    EMLocationMessageBody 位置消息体
-    //    EMImageMessageBody 图片消息
-    EMChatText *chatText = [[EMChatText alloc] initWithText:msg];
+// 发送文本聊天消息
+-(void)sendTextMessage:(NSString *)text{    //创建消息体
+
+    EMChatText *chatText = [[EMChatText alloc] initWithText:text];
     EMTextMessageBody *textBuddy = [[EMTextMessageBody alloc] initWithChatObject:chatText];
     
-    //bodies  只传一个
-    EMMessage *message = [[EMMessage alloc] initWithReceiver:self.buddy.username bodies:@[textBuddy]];
-#warning 聊天消息的类型默认就是单聊
-    message.messageType = eMessageTypeChat; // 设置为单聊消息
-    //message.messageType = eConversationTypeGroupChat;// 设置为群聊消息
-    //message.messageType = eConversationTypeChatRoom;// 设置为聊天室消息
-    
+    [self sendMessageWithBody:textBuddy];
 
-    [[EaseMob sharedInstance].chatManager asyncSendMessage:message progress:nil prepare:^(EMMessage *message, EMError *error) {
-        NSLog(@"准备发送消息");
-    } onQueue:nil completion:^(EMMessage *message, EMError *error) {
-        if (!error) {
-            NSLog(@"发送消息成功");
-        } else {
-            NSLog(@"发送消息失败");
-        }
-    } onQueue:nil];
-    
-    // 刷新表格
-    [self.dataArray addObject:message];
-    [self.tableView reloadData];
 }
 
 // 接收到好友回复的消息
@@ -193,10 +219,11 @@
     if (message.messageType != eMessageTypeChat) return;
     
     // 把消息添加到数据源
-    [self.dataArray addObject:message];
+       [self addMessageToDataSource:message];
     // 刷新表格
     [self.tableView reloadData];
     
+    [self scrollToBottom];
 }
 
 - (IBAction)startRecord:(id)sender {
@@ -240,23 +267,50 @@
     
     // 创建一个语音的消息
     EMVoiceMessageBody *voiceBody = [[EMVoiceMessageBody alloc] initWithChatObject:chatVoice];
-    
-    // 把语音封装成一个EMMeaage对象
-    EMMessage *message = [[EMMessage alloc] initWithReceiver:self.buddy.username bodies:@[voiceBody]];
-    
-    
     // 发送
+    [self sendMessageWithBody:voiceBody];
+    
+}
+
+
+-(void)sendImageMessage:(UIImage *)selectedImg{
+    // 创建一个聊天图片对象
+    // 原始图片
+    EMChatImage *originalImage = [[EMChatImage alloc] initWithUIImage:selectedImg displayName:@"[图片]"];
+    // 缩略图
+#warning 缩略图的大小可以自己指定，缩略图传一个nil,代表环信会计算缩略图的大小
+    EMChatImage *thumbnailImage = nil;
+    
+    // 创建图片的消息体
+    EMImageMessageBody *imgBody = [[EMImageMessageBody alloc] initWithImage:originalImage thumbnailImage:thumbnailImage];
+    
+    [self sendMessageWithBody:imgBody];
+    
+}
+
+
+#pragma mark - 抽取公共的方法
+#pragma mark 发消息
+-(void)sendMessageWithBody:(id<IEMMessageBody>)body{
+    
+    // 创建消息对象
+    EMMessage *message = [[EMMessage alloc] initWithReceiver:self.buddy.username bodies:@[body]];
+    
+    // 发消息
     [[EaseMob sharedInstance].chatManager asyncSendMessage:message progress:nil prepare:^(EMMessage *message, EMError *error) {
-        NSLog(@"准备发送语音");
+        NSLog(@"准备发送聊天消息");
     } onQueue:nil completion:^(EMMessage *message, EMError *error) {
-        NSLog(@"发送语音成功");
+        NSLog(@"聊天消息发送成功");
     } onQueue:nil];
     
     // 刷新表格
-    [self.dataArray addObject:message];
+    [self addMessageToDataSource:message];
     [self.tableView reloadData];
-    
+    // 表格滑动到底部
+    [self scrollToBottom];
+
 }
+
 
 - (IBAction)cancelRecord:(id)sender {
     [[EMCDDeviceManager sharedInstance] cancelCurrentRecording];
@@ -283,18 +337,24 @@
 
 #pragma mark - imagePickDelegate
 - (IBAction)typeSelectorClick:(id)sender {
-    UIImagePickerController *imgPick = [[UIImagePickerController alloc] init];
-    imgPick.delegate = self;
-    imgPick.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    [self presentViewController:imgPick animated:YES completion:nil];
+    UIImagePickerController *imgPicker = [[UIImagePickerController alloc] init];
+    imgPicker.delegate = self;
+    imgPicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    
+    [self presentViewController:imgPicker animated:YES completion:nil];
 }
 
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
-    //获取用户选择的图片
-    UIImage *selectedImage = info[UIImagePickerControllerOriginalImage];
-    //发图片
-//    [self sendImageMassege:selectedImage];
+-(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info{
+    // 1.获取用户选择的图片
+    UIImage *selectedImg = info[UIImagePickerControllerOriginalImage];
+    
+    // 2.发图片
+    [self sendImageMessage:selectedImg];
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+    
 }
+
 
 //- (void)sendImageMassege:(UIImage *)selectedImage {
 //    //创建图片消息体
@@ -310,4 +370,13 @@
     [YLQVoiceTool stop];
 }
 
+
+-(void)scrollToBottom{
+    if (self.dataArray.count == 0) return;
+    
+    NSIndexPath *lastPath = [NSIndexPath indexPathForRow:self.dataArray.count - 1 inSection:0];
+    [self.tableView scrollToRowAtIndexPath:lastPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    
+    
+}
 @end

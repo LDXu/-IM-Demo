@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		392F46EA1CB0E44B00F80D59 /* YLQTimeTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 392F46E91CB0E44B00F80D59 /* YLQTimeTool.m */; };
+		392F46ED1CB0E54600F80D59 /* YLQTimeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 392F46EC1CB0E54600F80D59 /* YLQTimeCell.m */; };
 		3933B0341CAE06D800393027 /* YLQChatPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3933B0331CAE06D800393027 /* YLQChatPageViewController.m */; };
 		3933B0371CAE096200393027 /* YLQChatPageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 3933B0361CAE096200393027 /* YLQChatPageCell.m */; };
 		3933B2E81CAEAC4400393027 /* EMAudioPlayerUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 3933B2CA1CAEAC4400393027 /* EMAudioPlayerUtil.m */; };
@@ -52,6 +54,10 @@
 
 /* Begin PBXFileReference section */
 		375E6652F34ED4C95ACD4598 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		392F46E81CB0E44B00F80D59 /* YLQTimeTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YLQTimeTool.h; sourceTree = "<group>"; };
+		392F46E91CB0E44B00F80D59 /* YLQTimeTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YLQTimeTool.m; sourceTree = "<group>"; };
+		392F46EB1CB0E54600F80D59 /* YLQTimeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YLQTimeCell.h; sourceTree = "<group>"; };
+		392F46EC1CB0E54600F80D59 /* YLQTimeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YLQTimeCell.m; sourceTree = "<group>"; };
 		3933B0321CAE06D800393027 /* YLQChatPageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YLQChatPageViewController.h; sourceTree = "<group>"; };
 		3933B0331CAE06D800393027 /* YLQChatPageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YLQChatPageViewController.m; sourceTree = "<group>"; };
 		3933B0351CAE096200393027 /* YLQChatPageCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YLQChatPageCell.h; sourceTree = "<group>"; };
@@ -165,6 +171,8 @@
 			children = (
 				3933B0351CAE096200393027 /* YLQChatPageCell.h */,
 				3933B0361CAE096200393027 /* YLQChatPageCell.m */,
+				392F46EB1CB0E54600F80D59 /* YLQTimeCell.h */,
+				392F46EC1CB0E54600F80D59 /* YLQTimeCell.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -258,6 +266,8 @@
 			children = (
 				3933B2F51CAEBF6000393027 /* YLQVoiceTool.h */,
 				3933B2F61CAEBF6000393027 /* YLQVoiceTool.m */,
+				392F46E81CB0E44B00F80D59 /* YLQTimeTool.h */,
+				392F46E91CB0E44B00F80D59 /* YLQTimeTool.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -637,6 +647,7 @@
 				3933B2F01CAEAC4400393027 /* wav.mm in Sources */,
 				3957AEA81CACC5D900319F6F /* LoginViewController.m in Sources */,
 				39D176E91CACC20A00101692 /* ViewController.m in Sources */,
+				392F46EA1CB0E44B00F80D59 /* YLQTimeTool.m in Sources */,
 				3957AEC21CAD103A00319F6F /* YLQAddContactsView.m in Sources */,
 				3933B2E91CAEAC4400393027 /* EMAudioRecorderUtil.m in Sources */,
 				3933B0341CAE06D800393027 /* YLQChatPageViewController.m in Sources */,
@@ -645,6 +656,7 @@
 				3933B2EC1CAEAC4400393027 /* EMCDDeviceManager+ProximitySensor.m in Sources */,
 				3933B2E81CAEAC4400393027 /* EMAudioPlayerUtil.m in Sources */,
 				3933B2EF1CAEAC4400393027 /* amrFileCodec.mm in Sources */,
+				392F46ED1CB0E54600F80D59 /* YLQTimeCell.m in Sources */,
 				3933B2F71CAEBF6000393027 /* YLQVoiceTool.m in Sources */,
 				39D176E61CACC20A00101692 /* AppDelegate.m in Sources */,
 				3933B2EE1CAEAC4400393027 /* EMCDDeviceManagerBase.m in Sources */,
@@ -786,7 +798,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ENABLE_BITCODE = NO;
-				GCC_PREFIX_HEADER = "/Users/YLQ/Desktop/Tips/集成环信SDK2.0/集成环信SDK2.0/ChatDemoPCH.pch";
+				GCC_PREFIX_HEADER = "/Users/YLQ/Desktop/环信IM功能Demo/集成环信SDK2.0/ChatDemoPCH.pch";
 				INFOPLIST_FILE = "集成环信SDK2.0/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -812,7 +824,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ENABLE_BITCODE = NO;
-				GCC_PREFIX_HEADER = "/Users/YLQ/Desktop/Tips/集成环信SDK2.0/集成环信SDK2.0/ChatDemoPCH.pch";
+				GCC_PREFIX_HEADER = "/Users/YLQ/Desktop/环信IM功能Demo/集成环信SDK2.0/ChatDemoPCH.pch";
 				INFOPLIST_FILE = "集成环信SDK2.0/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
