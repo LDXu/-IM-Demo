@@ -108,5 +108,8 @@
     [self.tableView reloadData];
 }
 
-
+-(void)dealloc{
+    //移除代理
+    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+}
 @end

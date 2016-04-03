@@ -17,9 +17,11 @@
 
 #import "YLQChatViewController.h"
 #import <EaseMob.h>
+#import "YLQChatPageViewController.h"
 
 @interface YLQChatViewController()<EMChatManagerDelegate>
-
+/** 会话数据*/
+@property (nonatomic, strong) NSArray *conversations;
 @end
 
 @implementation YLQChatViewController
@@ -27,8 +29,30 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
+    // 加载会话列表
+    //    [[EaseMob sharedInstance].chatManager conversations]
+    self.conversations =  [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:YES];
+    NSLog(@"会话列表 %@",self.conversations);
+    
+    // 显示总的未读消息数
+    [self showTabbarItemBadge];
 }
 
+- (void)showTabbarItemBadge {
+    // 获取总的未读取消息数
+    NSUInteger totalUnreadCount = 0;
+    for (EMConversation *conversation in self.conversations) {
+        totalUnreadCount += [conversation unreadMessagesCount];
+    }
+    
+    // 显示数字
+    if (totalUnreadCount) {
+        self.navigationController.tabBarItem.badgeValue = [NSString stringWithFormat:@"%zd",totalUnreadCount];
+    } else {
+        self.navigationController.tabBarItem.badgeValue = nil;
+    }
+    
+}
 
 #pragma mark - EMChatManagerDelegate
 //网络状态改变的回调
@@ -127,4 +151,78 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
+#pragma mark - Table view data source
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.conversations.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *ID = @"ConversationCell";
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    
+    // 获取会话对象
+    EMConversation *conversation = self.conversations[indexPath.row];
+    
+    // 获取未读取消息数
+    NSUInteger unreadCount = [conversation unreadMessagesCount];
+    
+    // 显示好友的名称
+    cell.textLabel.text = [NSString stringWithFormat:@"%@ 未读消息数:%@",conversation.chatter,@(unreadCount)];
+    
+    // 显示最后聊天的内容
+    // 1.获取消息体
+    id msgBody = conversation.latestMessage.messageBodies[0];
+    if ([msgBody isKindOfClass:[EMTextMessageBody class]]) {//文本消息
+        EMTextMessageBody *textBody = msgBody;
+        cell.detailTextLabel.text = textBody.text;
+    }else if ([msgBody isKindOfClass:[EMVoiceMessageBody class]]){//语音
+        EMVoiceMessageBody *voiceBody = msgBody;
+        cell.detailTextLabel.text = voiceBody.displayName;
+    }else if ([msgBody isKindOfClass:[EMImageMessageBody class]]){//图片
+        EMImageMessageBody *imgBody = msgBody;
+        cell.detailTextLabel.text = imgBody.displayName;
+    }else{
+        
+        cell.detailTextLabel.text = @"未处理的消息类型";
+    }
+    return cell;
+}
+
+// 未读消息数的改变
+-(void)didUnreadMessagesCountChanged{
+    
+    // 刷新表格
+    [self.tableView reloadData];
+    
+    // 刷新Badge
+    [self showTabbarItemBadge];
+}
+
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    //进入聊天界面
+    YLQChatPageViewController *chatVc = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"ChatPageStoryBoard"];
+    
+    // 获取会话对象
+    EMConversation *conversation = self.conversations[indexPath.row];
+    
+    
+    // 封装一个好友的模型
+    EMBuddy *buddy = [EMBuddy buddyWithUsername:conversation.chatter];
+    
+    chatVc.buddy = buddy;
+    
+    [self.navigationController pushViewController:chatVc animated:YES];
+    
+    
+}
+
+
+-(void)dealloc{
+    //移除代理
+    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+}
 @end

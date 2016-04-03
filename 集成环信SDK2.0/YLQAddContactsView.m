@@ -9,14 +9,14 @@
 #import "YLQAddContactsView.h"
 #import <EaseMob.h>
 
-@interface YLQAddContactsView()<EMChatManagerDelegate>
+@interface YLQAddContactsView()
 @property (weak, nonatomic) IBOutlet UITextField *addTextField;
 
 @end
 @implementation YLQAddContactsView
 
 - (void)viewDidLoad {
-    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
+    
 }
 
 - (IBAction)addButtonClick:(id)sender {

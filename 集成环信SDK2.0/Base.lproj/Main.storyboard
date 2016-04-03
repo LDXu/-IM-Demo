@@ -14,7 +14,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="uIr-45-CPW">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ConversationCell" id="uIr-45-CPW">
                                 <rect key="frame" x="0.0" y="92" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="uIr-45-CPW" id="Uhr-B3-tq9">
@@ -204,7 +204,7 @@
         <!--Chat Page View Controller-->
         <scene sceneID="lX5-6W-4iT">
             <objects>
-                <viewController hidesBottomBarWhenPushed="YES" id="fdM-2j-889" customClass="YLQChatPageViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ChatPageStoryBoard" hidesBottomBarWhenPushed="YES" id="fdM-2j-889" customClass="YLQChatPageViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="lDv-pH-lfA"/>
                         <viewControllerLayoutGuide type="bottom" id="vTI-mY-HzL"/>

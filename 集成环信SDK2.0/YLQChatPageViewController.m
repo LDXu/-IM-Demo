@@ -35,6 +35,9 @@
 
 /** 上一个会话时间 */
 @property (nonatomic, copy) NSString *lastTimeStr;
+/** 当前的会话对象*/
+@property (nonatomic, strong) EMConversation *conversation;
+
 @end
 
 @implementation YLQChatPageViewController
@@ -93,6 +96,7 @@
 - (void)loadMessageFramDB {
     //获取会话对象  单聊
     EMConversation *conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:self.buddy.username conversationType:eConversationTypeChat];
+    self.conversation = conversation;
     //获取聊天记录
     //标准使用这个
 //    - (NSArray *)loadNumbersOfMessages:(NSUInteger)aCount before:(long long)timestamp;
@@ -118,6 +122,11 @@
     
     // 2.添加消息模型到数据源
     [self.dataArray addObject:msg];
+    
+    // 更改消息未读的 为 已读
+    if (msg.isRead == NO){
+        [self.conversation markMessageWithId:msg.messageId asRead:YES];
+    }
     
 }
 
@@ -376,7 +385,12 @@
     
     NSIndexPath *lastPath = [NSIndexPath indexPathForRow:self.dataArray.count - 1 inSection:0];
     [self.tableView scrollToRowAtIndexPath:lastPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-    
-    
+}
+
+-(void)dealloc{
+    //移除代理
+    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+    // 移除键盘的通知
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 @end
